@@ -58,6 +58,13 @@ fn read_config(file: &String) -> Result<Config, ()> {
 
 /// Clones the repository at the given URL `url` into the directory `dir`.
 fn clone_repo(url: &String, dir: &String) -> Result<(), ()> {
+    let sources_dir = fs::canonicalize(dir);
+    if sources_dir.is_err() {
+        return Err(());
+    }
+    let sources_dir = sources_dir.unwrap();
+    fs::remove_dir_all(sources_dir);
+
     let mut command = Command::new("git");
     command.arg("clone").arg(url).arg(dir);
 
@@ -74,8 +81,14 @@ fn clone_repo(url: &String, dir: &String) -> Result<(), ()> {
 
 /// Compiles the kernel with the given configuration `config`.
 fn compile(config: &Config, dir: &String) -> Result<(), ()> {
+    let sources_dir = fs::canonicalize(dir);
+    if sources_dir.is_err() {
+        return Err(());
+    }
+    let sources_dir = sources_dir.unwrap();
+
     let mut command = Command::new(config.compilation.command.clone());
-    command.current_dir(fs::canonicalize(dir));
+    command.current_dir(sources_dir);
     for a in &config.compilation.arguments {
         command.arg(a);
     }
