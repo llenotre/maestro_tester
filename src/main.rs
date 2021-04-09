@@ -31,15 +31,24 @@ struct EnvVar {
     value: String,
 }
 
+/// Structure representing the compilation command.
+#[derive(Deserialize)]
+struct CompilationCommand {
+    /// The compilation environment.
+    environment: Vec::<EnvVar>,
+    /// The command to execute.
+    command: String,
+    /// The arguments for the command.
+    arguments: Vec::<String>,
+}
+
 /// Sturcture representing the testing configuration.
 #[derive(Deserialize)]
 struct Config {
     /// The URL to the kernel's repository.
     repository: String,
-    /// The compilation environment.
-    compilation_environment: Vec::<EnvVar>,
     /// The compilation command.
-    compilation_command: Vec::<String>,
+    compilation: CompilationCommand,
     /// The path to the output binary.
     output_binary: String,
     /// The list of test machines.
@@ -75,15 +84,45 @@ fn clone_repo(url: &String, dir: &String) -> Result<(), ()> {
     }
 }
 
+/// Compiles the kernel with the given configuration `config`.
+fn compile(config: &Config) -> Result<(), ()> {
+    let mut command = Command::new(config.compilation.command.clone());
+    for a in &config.compilation.arguments {
+        command.arg(a);
+    }
+    for e in &config.compilation.environment {
+        command.env(e.name.clone(), e.value.clone());
+    }
+
+    if let Ok(status) = command.status() {
+        if status.success() {
+            Ok(())
+        } else {
+            Err(())
+        }
+    } else {
+        Err(())
+    }
+}
+
 fn main() {
     let config = read_config(&String::from("config.json"));
     if config.is_err() {
         eprintln!("Failed to read configuration!");
         process::exit(1);
     }
+    let config = config.unwrap();
 
-    // TODO Clone repo
-    // TODO Set checkout commit hash
-    // TODO Compile
+    if clone_repo(&config.repository, &String::from("sources")).is_err() {
+        eprintln!("Failed to clone repository!");
+        process::exit(1);
+    }
+    // TODO Set checkout commit hash (get as argument)
+
+    if compile(&config).is_err() {
+        eprintln!("Failed to clone repository!");
+        process::exit(1);
+    }
+
     // TODO Run on every test machines
 }
