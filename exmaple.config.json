@@ -1,0 +1,28 @@
+{
+	"repository": "https://github.com/llenotre/maestro",
+	"compilation_environment": [
+		{
+			"name": "PATH",
+			"value": "/bin:/usr/bin"
+		},
+		{
+			"name": "KERNEL_MODE",
+			"value": "debug"
+		},
+		{
+			"name": "KERNEL_TEST",
+			"value": "true"
+		}
+	],
+	"compilation_command": "make",
+	"output_binary": "maestro.iso",
+	"test_machines": [
+		{
+			"ip": "0.0.0.0",
+			"mac": "00:00:00:00:00:00",
+			"gpio": 0,
+			"boot_delay": 0,
+			"boot_timeout": 0
+		}
+	]
+}
