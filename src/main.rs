@@ -1,12 +1,15 @@
 use std::fs;
 use std::process::Command;
 use std::process;
+use std::thread;
 
 use serde::Deserialize;
 
 /// Structure representing a test machine on which the kernel will run.
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct TestMachine {
+    /// The machine's name.
+    name: String,
     /// The machine's ip address.
     ip: String,
     /// The machine's MAC address.
@@ -20,6 +23,23 @@ struct TestMachine {
     /// The booting timeout, killing the power input if no response from the test machine is
     /// received.
     boot_timeout: usize,
+}
+
+impl TestMachine {
+    /// Boots the test machine.
+    pub fn boot(&self) {
+        // TODO
+    }
+
+    /// Runs the tests on the machine.
+    pub fn run(&self) {
+        // TODO
+    }
+
+    /// Shutdowns the machine.
+    pub fn shutdown(&self) {
+        // TODO
+    }
 }
 
 /// Structure representing an environment variable.
@@ -113,16 +133,34 @@ fn main() {
     }
     let config = config.unwrap();
 
+    println!("Getting source code...");
     if clone_repo(&config.repository, &String::from("sources")).is_err() {
         eprintln!("Failed to clone repository!");
         process::exit(1);
     }
     // TODO Set checkout commit hash (get as argument)
 
+    println!("Compiling...");
     if compile(&config).is_err() {
         eprintln!("Failed to clone repository!");
         process::exit(1);
     }
 
-    // TODO Run on every test machines
+    println!("Running tests...");
+    for m in config.test_machines.clone() {
+        let t = thread::spawn(move || {
+            println!("Booting test machine `{}`...", m.name);
+            m.boot();
+            println!("Running tests on machine `{}`...", m.name);
+            m.run();
+            println!("Testing ended on machine `{}`", m.name);
+            m.shutdown();
+        });
+        if t.join().is_err() {
+            eprintln!("An error was raised while run the tests!");
+        }
+    }
+
+    // TODO Print results
+    println!("Done!");
 }

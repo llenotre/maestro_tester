@@ -21,6 +21,7 @@
 	"output_binary": "maestro.iso",
 	"test_machines": [
 		{
+			"name": "foo",
 			"ip": "0.0.0.0",
 			"mac": "00:00:00:00:00:00",
 			"gpio": 0,
