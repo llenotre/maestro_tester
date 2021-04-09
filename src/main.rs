@@ -115,7 +115,7 @@ fn main() {
     }
     let config = config.unwrap();
 
-    println!("Getting source code...");
+    /*println!("Getting source code...");
     if clone_repo(&config.repository, &String::from("sources")).is_err() {
         eprintln!("Failed to clone repository!");
         process::exit(1);
@@ -126,7 +126,7 @@ fn main() {
     if compile(&config, &String::from("sources")).is_err() {
         eprintln!("Failed to clone repository!");
         process::exit(1);
-    }
+    }*/
 
     // TODO Copy output to PXE directory
 
