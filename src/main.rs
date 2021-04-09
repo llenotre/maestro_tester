@@ -59,7 +59,7 @@ fn read_config(file: &String) -> Result<Config, ()> {
 /// Clones the repository at the given URL `url` into the directory `dir`.
 fn clone_repo(url: &String, dir: &String) -> Result<(), ()> {
     let mut command = Command::new("git");
-    command.arg(url).arg(dir);
+    command.arg("clone").arg(url).arg(dir);
 
     if let Ok(status) = command.status() {
         if status.success() {
@@ -73,8 +73,9 @@ fn clone_repo(url: &String, dir: &String) -> Result<(), ()> {
 }
 
 /// Compiles the kernel with the given configuration `config`.
-fn compile(config: &Config) -> Result<(), ()> {
+fn compile(config: &Config, dir: &String) -> Result<(), ()> {
     let mut command = Command::new(config.compilation.command.clone());
+    command.current_dir(fs::canonicalize(dir));
     for a in &config.compilation.arguments {
         command.arg(a);
     }
@@ -109,7 +110,7 @@ fn main() {
     // TODO Set checkout commit hash (get as argument)
 
     println!("Compiling...");
-    if compile(&config).is_err() {
+    if compile(&config, &String::from("sources")).is_err() {
         eprintln!("Failed to clone repository!");
         process::exit(1);
     }
@@ -125,12 +126,17 @@ fn main() {
                 // TODO Continue running but end program with status `1`
             }
             println!("Testing ended on machine `{}`", m.get_name());
-            m.shutdown();
+            if m.shutdown().is_err() {
+                eprintln!("Failed to shutdown machine `{}`!", m.get_name());
+                // TODO Continue running but end program with status `1`
+            }
         });
         if t.join().is_err() {
             eprintln!("An error was raised while run the tests!");
         }
     }
+
+    // TODO Loop on every machines to ensure they are all down
 
     // TODO Print results
     println!("Done!");

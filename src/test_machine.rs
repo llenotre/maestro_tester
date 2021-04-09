@@ -33,13 +33,17 @@ impl TestMachine {
         let gpio = GPIO::from_id(self.gpio);
         gpio.set_output(false)?;
 
+        // TODO Wait for boot_delay ms
         // TODO Send WoL
+        // TODO Wait for boot_timeout ms (unless results are received before)
+        // TODO Read results from serial
 
         Ok(())
     }
 
     /// Shutdowns the machine.
-    pub fn shutdown(&self) {
-        // TODO
+    pub fn shutdown(&self) -> Result<(), ()> {
+        let gpio = GPIO::from_id(self.gpio);
+        gpio.set_output(true)
     }
 }
