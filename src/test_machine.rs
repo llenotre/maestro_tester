@@ -1,5 +1,7 @@
 use serde::Deserialize;
 
+use crate::gpio::GPIO;
+
 /// Structure representing a test machine on which the kernel will run.
 #[derive(Clone, Deserialize)]
 pub struct TestMachine {
@@ -27,13 +29,13 @@ impl TestMachine {
     }
 
     /// Boots the test machine.
-    pub fn boot(&self) {
-        // TODO
-    }
+    pub fn boot(&self) -> Result<(), ()> {
+        let gpio = GPIO::from_id(self.gpio);
+        gpio.set_output(false)?;
 
-    /// Runs the tests on the machine.
-    pub fn run(&self) {
-        // TODO
+        // TODO Send WoL
+
+        Ok(())
     }
 
     /// Shutdowns the machine.

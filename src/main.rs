@@ -7,6 +7,7 @@ use serde::Deserialize;
 
 use test_machine::TestMachine;
 
+mod gpio;
 mod test_machine;
 
 /// Structure representing an environment variable.
@@ -118,10 +119,11 @@ fn main() {
     println!("Running tests...");
     for m in config.test_machines.clone() {
         let t = thread::spawn(move || {
-            println!("Booting test machine `{}`...", m.get_name());
-            m.boot();
-            println!("Running tests on machine `{}`...", m.get_name());
-            m.run();
+            println!("Booting test machine `{}` and running kernel...", m.get_name());
+            if m.boot().is_err() {
+                eprintln!("Failed to boot machine `{}`!", m.get_name());
+                // TODO Continue running but end program with status `1`
+            }
             println!("Testing ended on machine `{}`", m.get_name());
             m.shutdown();
         });
