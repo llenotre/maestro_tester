@@ -76,7 +76,7 @@ impl TestMachine {
         let sock = sock.unwrap();
         sock.set_broadcast(true);
 
-        if let Err(e) = sock.send_to(&buf, self.ip.clone() + ":9") {
+        if let Err(e) = sock.send_to(&buf, self.broadcast_address.clone() + ":9") {
             eprintln!("Could not send WOL: {}", e);
             return Err(());
         }
