@@ -5,42 +5,9 @@ use std::thread;
 
 use serde::Deserialize;
 
-/// Structure representing a test machine on which the kernel will run.
-#[derive(Clone, Deserialize)]
-struct TestMachine {
-    /// The machine's name.
-    name: String,
-    /// The machine's ip address.
-    ip: String,
-    /// The machine's MAC address.
-    mac: String,
+use test_machine::TestMachine;
 
-    /// The machine's relay's GPIO number.
-    gpio: u32,
-
-    /// The delay between switching the relay and sending the magic packet in milliseconds.
-    boot_delay: usize,
-    /// The booting timeout, killing the power input if no response from the test machine is
-    /// received.
-    boot_timeout: usize,
-}
-
-impl TestMachine {
-    /// Boots the test machine.
-    pub fn boot(&self) {
-        // TODO
-    }
-
-    /// Runs the tests on the machine.
-    pub fn run(&self) {
-        // TODO
-    }
-
-    /// Shutdowns the machine.
-    pub fn shutdown(&self) {
-        // TODO
-    }
-}
+mod test_machine;
 
 /// Structure representing an environment variable.
 #[derive(Deserialize)]
@@ -146,14 +113,16 @@ fn main() {
         process::exit(1);
     }
 
+    // TODO Copy output to PXE directory
+
     println!("Running tests...");
     for m in config.test_machines.clone() {
         let t = thread::spawn(move || {
-            println!("Booting test machine `{}`...", m.name);
+            println!("Booting test machine `{}`...", m.get_name());
             m.boot();
-            println!("Running tests on machine `{}`...", m.name);
+            println!("Running tests on machine `{}`...", m.get_name());
             m.run();
-            println!("Testing ended on machine `{}`", m.name);
+            println!("Testing ended on machine `{}`", m.get_name());
             m.shutdown();
         });
         if t.join().is_err() {
