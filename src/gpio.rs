@@ -27,11 +27,13 @@ impl GPIO {
             return Ok(());
         }
 
-        if fs::write("/sys/class/gpio/export", &self.id.to_string()).is_err() {
+        if let Err(e) = fs::write("/sys/class/gpio/export", &self.id.to_string()) {
+            eprintln!("Error while exporting GPIO {}: {}", self.id, e);
             return Err(());
         }
 
-        if fs::write("/sys/class/gpio/gpio".to_owned() + &self.id.to_string() + "/direction", "out").is_err() {
+        if let Err(e) = fs::write("/sys/class/gpio/gpio".to_owned() + &self.id.to_string() + "/direction", "out") {
+            eprintln!("Error while setting GPIO {} direction: {}", self.id, e);
             return Err(());
         }
 
@@ -52,10 +54,11 @@ impl GPIO {
             "0"
         };
 
-        if fs::write(path, state_str).is_ok() {
-            Ok(())
-        } else {
+        if let Err(e) = fs::write(path, state_str) {
+            eprintln!("Error while setting GPIO {} state: {}", self.id, e);
             Err(())
+        } else {
+            Ok(())
         }
     }
 }
